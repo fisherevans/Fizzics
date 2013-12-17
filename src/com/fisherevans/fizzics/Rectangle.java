@@ -10,6 +10,7 @@ public class Rectangle {
 
     private float _restitution = 0.8f;
     private boolean _isStatic = false;
+    private boolean _isCollidable = true;
 
     public Rectangle(float topLeftX, float topLeftY, float width, float height, boolean isStatic) {
         this(new Vector(topLeftX, topLeftY), width, height);
@@ -127,9 +128,22 @@ public class Rectangle {
         _restitution = restitiution;
     }
 
+    public void setCollidable(boolean isCollidable) {
+        _isCollidable = isCollidable;
+    }
+
+    public boolean isCollidable() {
+        return _isCollidable;
+    }
+
     public Rectangle getCopy() {
-        Rectangle rect =  new Rectangle(_topLeft.getCopy(), _width, _height);
+        Rectangle rect = new Rectangle(_topLeft.getCopy(), _width, _height);
         rect.setVelocity(_velocity.getCopy());
         return rect;
+    }
+
+    @Override
+    public String toString() {
+        return String.format("[x1:%.2f, y1%.2f, x2:%.2f, y2:%.2f]", getX1(), getY1(), getX2(), getY2());
     }
 }
