@@ -1,6 +1,6 @@
 package com.fisherevans.fizzics.test;
 
-import com.fisherevans.fizzics.CollisionListener;
+import com.fisherevans.fizzics.GlobalCollisionListener;
 import com.fisherevans.fizzics.Rectangle;
 import com.fisherevans.fizzics.Vector;
 import com.fisherevans.fizzics.World;
@@ -12,56 +12,57 @@ import java.awt.*;
  * Author: Fisher Evans
  * Date: 12/16/13
  */
-public class Test extends JPanel implements CollisionListener {
-    public static int HEIGHT = 800;
-    public static int WIDTH = 800;
+public class Test extends JPanel implements GlobalCollisionListener {
+    public static int HEIGHT = 400;
+    public static int WIDTH = 400;
 
-    public static float SCALE = 40f;
+    public static float SCALE = 20;
 
     private JFrame _frame;
 
     private long _lastPaint;
 
     private World _world;
-    private com.fisherevans.fizzics.Rectangle _player, _static;
 
     public Test() {
         super();
-        _frame = new JFrame();
         this.setPreferredSize(new Dimension(WIDTH, HEIGHT));
+
+        _frame = new JFrame();
         _frame.add(this);
         _frame.setVisible(true);
         _frame.pack();
-        _frame.setDefaultCloseOperation(_frame.EXIT_ON_CLOSE);
+        _frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         _world = new World(new Vector(0, -10));
-        _world.addCollisionListener(this);
+        _world.addGlobalCollisionListener(this);
 
-        _player = new Rectangle(15, 10, 2, 2);
-        _player.setVelocity(new Vector(-15, 3));
-        _player.setRestitution(0.4f);
-        _world.addRectangle(_player);
+        _world.addRectangle(new Rectangle(5, 15, 10, 1, true));
+        _world.addRectangle(new Rectangle(16, 4, 1, 10, true));
+        _world.addRectangle(new Rectangle(5, 2, 10, 1, true));
+        _world.addRectangle(new Rectangle(3, 4, 1, 8, true));
 
-        _player = new Rectangle(2, 10, 2, 2);
-        _player.setVelocity(new Vector(30, 3));
-        _player.setRestitution(0.4f);
-        _world.addRectangle(_player);
+        Rectangle rect;
 
-        _player = new Rectangle(9, 20, 2, 2);
-        _player.setVelocity(new Vector(1, -20));
-        _player.setRestitution(0.4f);
-        _world.addRectangle(_player);
+        rect = new Rectangle(6, 17, 3, 1);
+        rect.setVelocity(new Vector(2, 0));
+        rect.setRestitution(0.4f);
+        _world.addRectangle(rect);
 
-        _player = new Rectangle(6, 7, 2, 2);
-        _player.setStatic(true);
-        _player.setCollidable(false);
-        _world.addRectangle(_player);
+        rect = new Rectangle(11, 17, 1, 4);
+        rect.setVelocity(new Vector(1, 0));
+        rect.setRestitution(0.4f);
+        _world.addRectangle(rect);
 
-        _world.addRectangle(new Rectangle(10, 7, 2, 2, true));
-        _world.addRectangle(new Rectangle(10, 4, 2, 2, true));
-        _world.addRectangle(new Rectangle(3, 7, 2, 2, true));
-        _world.addRectangle(new Rectangle(7, 3, 2, 2, true));
-        _world.addRectangle(new Rectangle(4, 3, 2, 2, true));
+        rect = new Rectangle(11, 4, 3, 3);
+        rect.setVelocity(new Vector(20, 20));
+        rect.setRestitution(0.4f);
+        _world.addRectangle(rect);
+
+        rect = new Rectangle(8, 10, 2, 2);
+        rect.setVelocity(new Vector(15, 20));
+        rect.setRestitution(0.4f);
+        _world.addRectangle(rect);
 
         _lastPaint = System.currentTimeMillis();
     }
@@ -72,13 +73,17 @@ public class Test extends JPanel implements CollisionListener {
         float delta = (sysTime-_lastPaint)/1000f;
         _lastPaint = sysTime;
 
-        g.clearRect(0, 0, WIDTH, HEIGHT);
+        g.setColor(new Color(255, 255, 255));
+        g.fillRect(0, 0, WIDTH, HEIGHT);
 
         _world.step(delta);
 
-        g.setColor(new Color(230, 230, 255));
+        g.setColor(new Color(200, 225, 255));
         for (Rectangle r : _world.getRectangles()) {
-            g.fillRect((int) (r.getX1() * SCALE), HEIGHT - ((int) ((r.getY1()) * SCALE)), (int) (r.getWidth() * SCALE), (int) (r.getHeight() * SCALE));
+            g.fillRect((int) (r.getX1() * SCALE), // x
+                       (int) (HEIGHT - r.getY1() * SCALE), // y
+                       (int) (r.getWidth() * SCALE), // width
+                       (int) (r.getHeight() * SCALE)); // height
         }
     }
 
@@ -101,7 +106,7 @@ public class Test extends JPanel implements CollisionListener {
     }
 
     @Override
-    public void collision(Rectangle rect1, Rectangle rect2) {
-        System.out.println(rect1 + " banged " + rect2);
+    public void globalCollision(Rectangle rect1, Rectangle rect2) {
+        // System.out.println(rect1 + " banged " + rect2);
     }
 }
