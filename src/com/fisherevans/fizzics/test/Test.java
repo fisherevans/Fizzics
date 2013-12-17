@@ -19,7 +19,7 @@ public class Test extends JFrame {
     private long _lastPaint;
 
     private World _world;
-    private com.fisherevans.fizzics.Rectangle _player;
+    private com.fisherevans.fizzics.Rectangle _player, _static;
 
     public Test() {
         super();
@@ -27,10 +27,18 @@ public class Test extends JFrame {
         setVisible(true);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
 
-        _world = new World(new Vector(0, -8));
-        _player = new com.fisherevans.fizzics.Rectangle(10, 20, 5, 5);
-        _player.setVelocity(new Vector(5, 10));
+        _world = new World(new Vector(0, -10));
+
+        //_player = new com.fisherevans.fizzics.Rectangle(10, 25, 5, 5);
+        _player = new com.fisherevans.fizzics.Rectangle(21, 25, 5, 5);
+        _player.setVelocity(new Vector(0, 0));
+        System.out.println(_player);
         _world.addRectangle(_player);
+
+        _static = new com.fisherevans.fizzics.Rectangle(25, 10, 10, 5);
+        _static.setStatic(true);
+        _world.addRectangle(_static);
+
         _lastPaint = System.currentTimeMillis();
     }
 
@@ -45,7 +53,9 @@ public class Test extends JFrame {
         _world.step(delta);
 
         g.setColor(Color.red);
-        g.fillRect((int)(_player.getX1()*SCALE), HEIGHT-((int)((_player.getY1()+_player.getHeight())*SCALE)), (int)(_player.getWidth()*SCALE), (int)(_player.getHeight()*SCALE));
+        g.fillRect((int)(_player.getX1()*SCALE), HEIGHT-((int)((_player.getY1())*SCALE)), (int)(_player.getWidth()*SCALE), (int)(_player.getHeight()*SCALE));
+        g.setColor(Color.green);
+        g.fillRect((int)(_static.getX1()*SCALE), HEIGHT-((int)((_static.getY1())*SCALE)), (int)(_static.getWidth()*SCALE), (int)(_static.getHeight()*SCALE));
     }
 
     public static void main(String arg[]){

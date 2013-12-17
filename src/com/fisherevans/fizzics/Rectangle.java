@@ -8,6 +8,7 @@ public class Rectangle {
     private Vector _topLeft, _velocity;
     private float _width, _height;
 
+    private float _restitiution = 0.8f;
     private boolean _static = false;
 
     public Rectangle(float topLeftX, float topLeftY, float width, float height) {
@@ -93,5 +94,19 @@ public class Rectangle {
 
     public void setStatic(boolean aStatic) {
         _static = aStatic;
+    }
+
+    public float getRestitiution() {
+        return _restitiution;
+    }
+
+    public void setRestitiution(float restitiution) {
+        _restitiution = restitiution;
+    }
+
+    public Rectangle getCopy() {
+        Rectangle rect =  new Rectangle(_topLeft.getCopy(), _width, _height);
+        rect.setVelocity(_velocity.getCopy());
+        return rect;
     }
 }
