@@ -46,22 +46,22 @@ public class Test extends JPanel implements GlobalCollisionListener {
 
         rect = new Rectangle(6, 17, 3, 1);
         rect.setVelocity(new Vector(2, 0));
-        rect.setRestitution(0.4f);
-        _world.addRectangle(rect);
+        rect.setRestitution(0.8f);
+        // _world.addRectangle(rect);
 
         rect = new Rectangle(11, 17, 1, 4);
         rect.setVelocity(new Vector(1, 0));
-        rect.setRestitution(0.4f);
-        _world.addRectangle(rect);
+        rect.setRestitution(0.8f);
+        // _world.addRectangle(rect);
 
         rect = new Rectangle(11, 4, 3, 3);
         rect.setVelocity(new Vector(20, 20));
-        rect.setRestitution(0.4f);
+        rect.setRestitution(0.8f);
         _world.addRectangle(rect);
 
         rect = new Rectangle(8, 10, 2, 2);
         rect.setVelocity(new Vector(15, 20));
-        rect.setRestitution(0.4f);
+        rect.setRestitution(0.8f);
         _world.addRectangle(rect);
 
         _lastPaint = System.currentTimeMillis();
@@ -76,7 +76,9 @@ public class Test extends JPanel implements GlobalCollisionListener {
         g.setColor(new Color(255, 255, 255));
         g.fillRect(0, 0, WIDTH, HEIGHT);
 
-        _world.step(delta);
+        // _world.step(delta);
+        // System.out.println(delta);
+        _world.step(0.017f);
 
         g.setColor(new Color(200, 225, 255));
         for (Rectangle r : _world.getRectangles()) {
@@ -107,6 +109,6 @@ public class Test extends JPanel implements GlobalCollisionListener {
 
     @Override
     public void globalCollision(Rectangle rect1, Rectangle rect2) {
-        // System.out.println(rect1 + " banged " + rect2);
+        System.out.println(rect1 + " banged " + rect2);
     }
 }

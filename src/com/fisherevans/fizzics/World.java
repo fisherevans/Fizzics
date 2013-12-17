@@ -34,21 +34,28 @@ public class World {
                 r1.move(r1.getVelocity().add(gravityVector).getCopy().scale(delta));
                 for(Rectangle r2:_rectangles) { // check for collisions
                     if (r2 != r1 && r1.intersects(r2)) {
-                        for (GlobalCollisionListener listener : _listeners) // call listeners
+                        for (GlobalCollisionListener listener : _listeners) { // call listeners
                             listener.globalCollision(r1, r2);
+                        }
                         if(r2.isCollidable()) { // !!!! ---> R1 is moving rect, R2 is the one it's hitting <--- !!!!
-                            if(beforeStep.getX1() > r2.getX2()) { // from right
+                            if (beforeStep.getX1() >= r2.getX2()) { // from
+                                                                    // right
                                 r1.move(new Vector(r2.getX2() - r1.getX1(), 0));
                                 isVerticalHit = false;
-                            } else if(beforeStep.getX2() < r2.getX1()) { // from left
+                            } else if (beforeStep.getX2() <= r2.getX1()) { // from
+                                                                           // left
                                 r1.move(new Vector(r2.getX1() - r1.getX2(), 0));
                                 isVerticalHit = false;
-                            } else if(beforeStep.getY1() < r2.getY2()) { // from bottom
+                            } else if (beforeStep.getY1() <= r2.getY2()) { // from
+                                                                           // bottom
                                 r1.move(new Vector(0, r2.getY2() - r1.getY1()));
                                 isVerticalHit = true;
-                            } else { // from top
+                            } else if (beforeStep.getY2() >= r2.getY1()) { // from
+                                                                           // top
                                 r1.move(new Vector(0, r2.getY1() - r1.getY2()));
                                 isVerticalHit = true;
+                            } else {
+                                continue; // should never be called
                             }
                             if (isVerticalHit) { // adjust vertical velocity if hitting from top/bottom
                                 if (r2.isStatic()) {
