@@ -14,7 +14,7 @@ public class Test extends JPanel {
     public static int HEIGHT = 800;
     public static int WIDTH = 800;
 
-    public static float SCALE = 20f;
+    public static float SCALE = 40f;
 
     private JFrame _frame;
 
@@ -35,15 +35,15 @@ public class Test extends JPanel {
         _world = new World(new Vector(0, -10));
 
         //_player = new com.fisherevans.fizzics.Rectangle(10, 25, 5, 5);
-        _player = new com.fisherevans.fizzics.Rectangle(15, 10, 5, 5);
-        _player.setVelocity(new Vector(10, 3));
-        _player.setRestitiution(0.8f);
-        System.out.println(_player);
+        _player = new com.fisherevans.fizzics.Rectangle(5, 7, 2, 2);
+        _player.setVelocity(new Vector(15, 3));
+        _player.setRestitution(0.4f);
         _world.addRectangle(_player);
 
-        _static = new com.fisherevans.fizzics.Rectangle(25, 10, 5, 5);
-        _static.setStatic(true);
-        _world.addRectangle(_static);
+        _world.addRectangle(new com.fisherevans.fizzics.Rectangle(10, 7, 2, 2, true));
+        _world.addRectangle(new com.fisherevans.fizzics.Rectangle(10, 4, 2, 2, true));
+        _world.addRectangle(new com.fisherevans.fizzics.Rectangle(3, 7, 2, 2, true));
+        _world.addRectangle(new com.fisherevans.fizzics.Rectangle(7, 3, 2, 2, true));
 
         _lastPaint = System.currentTimeMillis();
     }
@@ -59,9 +59,9 @@ public class Test extends JPanel {
         _world.step(delta);
 
         g.setColor(Color.red);
-        g.fillRect((int)(_player.getX1()*SCALE), HEIGHT-((int)((_player.getY1())*SCALE)), (int)(_player.getWidth()*SCALE), (int)(_player.getHeight()*SCALE));
-        g.setColor(Color.green);
-        g.fillRect((int)(_static.getX1()*SCALE), HEIGHT-((int)((_static.getY1())*SCALE)), (int)(_static.getWidth()*SCALE), (int)(_static.getHeight()*SCALE));
+        for (com.fisherevans.fizzics.Rectangle r : _world.getRectangles()) {
+            g.fillRect((int) (r.getX1() * SCALE), HEIGHT - ((int) ((r.getY1()) * SCALE)), (int) (r.getWidth() * SCALE), (int) (r.getHeight() * SCALE));
+        }
     }
 
     public static void main(String arg[]){

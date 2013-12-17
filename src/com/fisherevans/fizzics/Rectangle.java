@@ -8,8 +8,13 @@ public class Rectangle {
     private Vector _topLeft, _velocity;
     private float _width, _height;
 
-    private float _restitiution = 0.8f;
-    private boolean _static = false;
+    private float _restitution = 0.8f;
+    private boolean _isStatic = false;
+
+    public Rectangle(float topLeftX, float topLeftY, float width, float height, boolean isStatic) {
+        this(new Vector(topLeftX, topLeftY), width, height);
+        _isStatic = isStatic;
+    }
 
     public Rectangle(float topLeftX, float topLeftY, float width, float height) {
         this(new Vector(topLeftX, topLeftY), width, height);
@@ -23,25 +28,25 @@ public class Rectangle {
     }
 
     public boolean contains(Vector p) {
-    if (getX1() > p.getX())
+        if (getX1() >= p.getX())
       return false;
-    if (getX2() < p.getX())
+        if (getX2() <= p.getX())
       return false;
-    if (getY1() > p.getY())
+        if (getY1() >= p.getY())
       return false;
-    if (getY2() < p.getY())
+        if (getY2() <= p.getY())
       return false;
     return true;
     }
 
     public boolean intersects(Rectangle rec) {
-    if (getX2() < rec.getX1())
+        if (getX2() <= rec.getX1())
       return false;
-    if (getX1() > rec.getX2())
+        if (getX1() >= rec.getX2())
       return false;
-    if (getY2() < rec.getY1())
+        if (getY2() <= rec.getY1())
       return false;
-    if (getY1() > rec.getY2())
+        if (getY1() >= rec.getY2())
       return false;
     return true;
     }
@@ -107,19 +112,19 @@ public class Rectangle {
     }
 
     public boolean isStatic() {
-        return _static;
+        return _isStatic;
     }
 
-    public void setStatic(boolean aStatic) {
-        _static = aStatic;
+    public void setStatic(boolean isStatic) {
+        _isStatic = isStatic;
     }
 
-    public float getRestitiution() {
-        return _restitiution;
+    public float getRestitution() {
+        return _restitution;
     }
 
-    public void setRestitiution(float restitiution) {
-        _restitiution = restitiution;
+    public void setRestitution(float restitiution) {
+        _restitution = restitiution;
     }
 
     public Rectangle getCopy() {

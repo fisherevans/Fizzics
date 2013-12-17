@@ -24,6 +24,12 @@ public class Vector {
         return this;
     }
 
+    public Vector multiply(Vector vector) {
+        _x *= vector.getX();
+        _y *= vector.getY();
+        return this;
+    }
+
     public Vector scale(float magnitude) {
         _x *= magnitude;
         _y *= magnitude;
