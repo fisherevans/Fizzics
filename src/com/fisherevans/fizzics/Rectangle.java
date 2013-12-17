@@ -23,22 +23,40 @@ public class Rectangle {
     }
 
     public boolean contains(Vector p) {
-        return p.getX() > getX1()
-                && p.getX() < getX2()
-                && p.getY() > getY1()
-                && p.getY() < getY2();
+    if (getX1() > p.getX())
+      return false;
+    if (getX2() < p.getX())
+      return false;
+    if (getY1() > p.getY())
+      return false;
+    if (getY2() < p.getY())
+      return false;
+    return true;
     }
 
     public boolean intersects(Rectangle rec) {
-        return getX1() < rec.getX2()
-                && getX2() > rec.getX1()
-                && getY1() < rec.getY2()
-                && getY2() > rec.getY1();
+    if (getX2() < rec.getX1())
+      return false;
+    if (getX1() > rec.getX2())
+      return false;
+    if (getY2() < rec.getY1())
+      return false;
+    if (getY1() > rec.getY2())
+      return false;
+    return true;
     }
 
     public void move(Vector m) {
         _topLeft.add(m);
     }
+
+  public float getCenterX() {
+    return _topLeft.getX() + _width / 2f;
+  }
+
+  public float getCenterY() {
+    return _topLeft.getY() + _height / 2f;
+  }
 
     public float getX1() {
         return _topLeft.getX();

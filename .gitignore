@@ -1,3 +1,7 @@
 out
 .idea
+.project
+.classpath
+bin
+.settings
 Fizzics.iml
