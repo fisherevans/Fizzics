@@ -3,27 +3,36 @@ package com.fisherevans.fizzics.test;
 import com.fisherevans.fizzics.CollisionListener;
 import com.fisherevans.fizzics.GlobalCollisionListener;
 import com.fisherevans.fizzics.Rectangle;
+import com.fisherevans.fizzics.Side;
 import com.fisherevans.fizzics.Vector;
 import com.fisherevans.fizzics.World;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 
 /**
  * Author: Fisher Evans
  * Date: 12/16/13
  */
-public class Test extends JPanel implements GlobalCollisionListener {
-    public static int HEIGHT = 1000;
-    public static int WIDTH = 1000;
+public class Test extends JPanel implements GlobalCollisionListener, KeyListener {
+    public static final int SIZE = 300;
 
-    public static float SCALE = 50;
+    public static int HEIGHT = SIZE;
+    public static int WIDTH = SIZE;
+
+    public static float SCALE = SIZE / 20;
+
+    private boolean _up = false, _left = false, _right = false;
 
     private JFrame _frame;
 
     private long _lastPaint;
 
     private World _world;
+
+    private Rectangle _player;
 
     public Test() {
         super();
@@ -34,45 +43,40 @@ public class Test extends JPanel implements GlobalCollisionListener {
         _frame.setVisible(true);
         _frame.pack();
         _frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        _frame.addKeyListener(this);
 
-        _world = new World(new Vector(0, -10));
+        _world = new World(new Vector(0, -20));
         _world.addGlobalCollisionListener(this);
 
-        _world.addRectangle(new Rectangle(5, 15, 10, 1, true));
-        _world.addRectangle(new Rectangle(16, 4, 1, 10, true));
-        _world.addRectangle(new Rectangle(5, 2, 10, 1, true));
-        _world.addRectangle(new Rectangle(3, 4, 1, 8, true));
+        Rectangle r = new Rectangle(5, 15, 10, 1, true);
+        _world.addRectangle(r);
+
+        r = new Rectangle(16, 4, 1, 10, true);
+        _world.addRectangle(r);
+
+        r = new Rectangle(5, 2, 10, 1, true);
+        // r.setFriction(0);
+        _world.addRectangle(r);
+
+        r = new Rectangle(3, 4, 1, 8, true);
+        _world.addRectangle(r);
 
         Rectangle rect;
 
-        rect = new Rectangle(6, 17, 3, 1);
-        rect.setVelocity(new Vector(2, 0));
-        rect.setRestitution(0.8f);
-        // _world.addRectangle(rect);
+        _player = new Rectangle(10, 10, 2, 2);
+        _world.addRectangle(_player);
 
-        rect = new Rectangle(11, 17, 1, 4);
-        rect.setVelocity(new Vector(1, 0));
-        rect.setRestitution(0.8f);
-        // _world.addRectangle(rect);
-
-        rect = new Rectangle(11, 4, 3, 3);
-        rect.setVelocity(new Vector(20, 20));
-        rect.setRestitution(0.8f);
-        // _world.addRectangle(rect);
-
-        rect = new Rectangle(6, 8, 2, 2);
-        rect.setVelocity(new Vector(15, 20));
-        rect.setRestitution(0.8f);
-        _world.addRectangle(rect);
-
-        rect = new Rectangle(4.5f, 5.5f, 1, 1);
-        rect.setCollidable(false);
+        rect = new Rectangle(8f, 5.5f, 1, 1);
+        rect.setCollidable(true);
         rect.setStatic(true);
         rect.addListener(new CollisionListener() {
             @Override
-            public void collision(Rectangle thisRectangle, Rectangle incommingRectangle) {
-                System.out.println("Killed it!");
-                _world.removeRectangle(thisRectangle);
+            public void collision(Rectangle thisRectangle, Rectangle incommingRectangle, Side fromDirection) {
+                System.out.println("Hit from the " + fromDirection + " by " + incommingRectangle.toString());
+                if (fromDirection == Side.South) {
+                    System.out.println("Killed it!");
+                    _world.removeRectangle(thisRectangle);
+                }
             }
         });
         _world.addRectangle(rect);
@@ -89,6 +93,14 @@ public class Test extends JPanel implements GlobalCollisionListener {
         g.setColor(new Color(255, 255, 255));
         g.fillRect(0, 0, WIDTH, HEIGHT);
 
+        if (_up && _player.getOnFloor() == Side.South)
+            _player.getVelocity().setY(10);
+        
+        if (_right && !_left)
+            _player.getVelocity().setX(6);
+        else if (_left && !_right)
+            _player.getVelocity().setX(-6);
+
         // _world.step(delta);
         // System.out.println(delta);
         _world.step(0.017f);
@@ -102,6 +114,9 @@ public class Test extends JPanel implements GlobalCollisionListener {
                        (int) (r.getWidth() * SCALE), // width
                        (int) (r.getHeight() * SCALE)); // height
         }
+        
+        g.setColor(Color.black);
+        g.drawString("Wall: " + _player.getOnWall() + " - Floor: " + _player.getOnFloor(), 10, 20);
     }
 
     public static void main(String arg[]){
@@ -124,6 +139,41 @@ public class Test extends JPanel implements GlobalCollisionListener {
 
     @Override
     public void globalCollision(Rectangle rect1, Rectangle rect2) {
-        System.out.println(rect1 + " banged " + rect2);
+        // System.out.println(rect1 + " banged " + rect2);
+    }
+
+    @Override
+    public void keyPressed(KeyEvent event) {
+        switch (event.getKeyCode()) {
+        case KeyEvent.VK_UP:
+            _up = true;
+            break;
+        case KeyEvent.VK_LEFT:
+            _left = true;
+            break;
+        case KeyEvent.VK_RIGHT:
+            _right = true;
+            break;
+        }
+    }
+
+    @Override
+    public void keyReleased(KeyEvent event) {
+        switch (event.getKeyCode()) {
+        case KeyEvent.VK_UP:
+            _up = false;
+            break;
+        case KeyEvent.VK_LEFT:
+            _left = false;
+            break;
+        case KeyEvent.VK_RIGHT:
+            _right = false;
+            break;
+        }
+    }
+
+    @Override
+    public void keyTyped(KeyEvent event) {
+
     }
 }

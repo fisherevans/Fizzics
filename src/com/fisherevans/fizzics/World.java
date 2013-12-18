@@ -12,6 +12,7 @@ public class World {
     private Vector _gravity;
     private List<Rectangle> _rectangles, _rectanglesDeleteQueue, _rectanglesAddQueue;
     private List<GlobalCollisionListener> _listeners;
+    private Side _floor = Side.South;
 
     public World(Vector gravity) {
         _gravity = gravity;
@@ -49,57 +50,67 @@ public class World {
                 for (Rectangle r2 : _rectangles) { // check for collisions
                     if (r2 != r1 && r1.intersects(r2)) {
                         resolveCollision(r1Before, r1, r2, delta);
-                    } // end if not same as outer and does collide
+                    }
                 } // inner loop of rectangles
             } // end if not static
         } // outer loops of rectangles
     }
     
     private void resolveCollision(Rectangle r1Before, Rectangle r1, Rectangle r2, float delta) {
-        callGlobalCollisionListeners(r1, r2);
+        Side collisonDirection = Side.North;
+        if (r1Before.getX1() >= r2.getX2()) collisonDirection = Side.East;
+        else if (r1Before.getX2() <= r2.getX1()) collisonDirection = Side.West;
+        else if (r1Before.getY1() <= r2.getY2()) collisonDirection = Side.South;
+        else if (r1Before.getY2() >= r2.getY1()) collisonDirection = Side.North;
 
         if(r2.isCollidable()) { // !!!! ---> R1 is moving rectangle, R2 is the one it's hitting <--- !!!!
             r1.applyFriction(r2.getFriction() * delta);
             if (!r2.isStatic())
                 r2.applyFriction(r1.getFriction() * delta);
 
-            boolean isVerticalHit;
-            if (r1Before.getX1() >= r2.getX2()) { // from right
+            switch (collisonDirection) {
+            case East:
                 r1.move(new Vector(r2.getX2() - r1.getX1(), 0));
-                isVerticalHit = false;
-            } else if (r1Before.getX2() <= r2.getX1()) { // from left
+                break;
+            case West:
                 r1.move(new Vector(r2.getX1() - r1.getX2(), 0));
-                isVerticalHit = false;
-            } else if (r1Before.getY1() <= r2.getY2()) { // from bottom
-                r1.move(new Vector(0, r2.getY2() - r1.getY1()));
-                isVerticalHit = true;
-            } else if (r1Before.getY2() >= r2.getY1()) { // from top
+                break;
+            case North:
                 r1.move(new Vector(0, r2.getY1() - r1.getY2()));
-                isVerticalHit = true;
-            } else {
-                return; // should never be called
+                break;
+            case South:
+                r1.move(new Vector(0, r2.getY2() - r1.getY1()));
+                break;
             }
 
-            if (isVerticalHit) { // adjust vertical velocity if hitting from top/bottom
-                if (r2.isStatic()) {
+            if (collisonDirection == Side.North || collisonDirection == Side.South) { // adjust vertical velocity if hitting from top/bottom
+                if (r2.isStatic())
                     r1.getVelocity().setY(r1.getVelocity().getY() * -1 * r1.getRestitution());
-                } else {
+                else {
                     float r1vy = r2.getVelocity().getY() * r1.getRestitution();
                     float r2vy = r1.getVelocity().getY() * r2.getRestitution();
                     r1.getVelocity().setY(r1vy);
                     r2.getVelocity().setY(r2vy);
                 }
+                r2.setOnFloor(collisonDirection);
+                r1.setOnFloor(collisonDirection.getOppsite());
             } else { // adjust horizontal velocity if hitting from left/right
-                if (r2.isStatic()) {
+                if (r2.isStatic())
                     r1.getVelocity().setX(r1.getVelocity().getX() * -1 * r1.getRestitution());
-                } else {
+                else {
                     float r1vx = r2.getVelocity().getX() * r1.getRestitution();
                     float r2vx = r1.getVelocity().getX() * r2.getRestitution();
                     r1.getVelocity().setX(r1vx);
                     r2.getVelocity().setX(r2vx);
                 }
+                r2.setOnWall(collisonDirection);
+                r1.setOnWall(collisonDirection.getOppsite());
             }
         } // end if collidable
+
+        callGlobalCollisionListeners(r1, r2);
+        r1.callCollisionListners(r2, collisonDirection.getOppsite());
+        r2.callCollisionListners(r1, collisonDirection);
     }
 
     private void runRectangleQueues() {
@@ -111,8 +122,6 @@ public class World {
     }
 
     private void callGlobalCollisionListeners(Rectangle rect1, Rectangle rect2) {
-        rect1.callCollisionListners(rect2);
-        rect2.callCollisionListners(rect1);
         for (GlobalCollisionListener listener : _listeners) { // call listeners
             listener.globalCollision(rect1, rect2);
         }
