@@ -4,6 +4,11 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
+import com.fisherevans.fizzics.components.Rectangle;
+import com.fisherevans.fizzics.components.Side;
+import com.fisherevans.fizzics.components.Vector;
+import com.fisherevans.fizzics.listeners.GlobalCollisionListener;
+
 /**
  * Author: Fisher Evans
  * Date: 12/16/13

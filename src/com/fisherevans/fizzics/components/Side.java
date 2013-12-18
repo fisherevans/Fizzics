@@ -1,4 +1,4 @@
-package com.fisherevans.fizzics;
+package com.fisherevans.fizzics.components;
 
 public enum Side {
     West, North, East, South;

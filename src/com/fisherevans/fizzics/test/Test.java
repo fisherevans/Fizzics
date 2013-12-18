@@ -1,11 +1,11 @@
 package com.fisherevans.fizzics.test;
 
-import com.fisherevans.fizzics.CollisionListener;
-import com.fisherevans.fizzics.GlobalCollisionListener;
-import com.fisherevans.fizzics.Rectangle;
-import com.fisherevans.fizzics.Side;
-import com.fisherevans.fizzics.Vector;
 import com.fisherevans.fizzics.World;
+import com.fisherevans.fizzics.components.Rectangle;
+import com.fisherevans.fizzics.components.Side;
+import com.fisherevans.fizzics.components.Vector;
+import com.fisherevans.fizzics.listeners.CollisionListener;
+import com.fisherevans.fizzics.listeners.GlobalCollisionListener;
 
 import javax.swing.*;
 import java.awt.*;
@@ -17,7 +17,7 @@ import java.awt.event.KeyListener;
  * Date: 12/16/13
  */
 public class Test extends JPanel implements GlobalCollisionListener, KeyListener {
-    public static final int SIZE = 300;
+    public static final int SIZE = 100;
 
     public static int HEIGHT = SIZE;
     public static int WIDTH = SIZE;
@@ -52,6 +52,7 @@ public class Test extends JPanel implements GlobalCollisionListener, KeyListener
         _world.addRectangle(r);
 
         r = new Rectangle(16, 4, 1, 10, true);
+        r.setFriction(0);
         _world.addRectangle(r);
 
         r = new Rectangle(5, 2, 10, 1, true);
@@ -59,6 +60,7 @@ public class Test extends JPanel implements GlobalCollisionListener, KeyListener
         _world.addRectangle(r);
 
         r = new Rectangle(3, 4, 1, 8, true);
+        r.setFriction(0);
         _world.addRectangle(r);
 
         Rectangle rect;
@@ -101,9 +103,9 @@ public class Test extends JPanel implements GlobalCollisionListener, KeyListener
         else if (_left && !_right)
             _player.getVelocity().setX(-6);
 
-        // _world.step(delta);
+        _world.step(delta);
         // System.out.println(delta);
-        _world.step(0.017f);
+        // _world.step(0.017f);
 
         // g.setColor(new Color(200, 225, 255));
         int color = 200;

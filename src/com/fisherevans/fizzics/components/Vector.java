@@ -1,4 +1,4 @@
-package com.fisherevans.fizzics;
+package com.fisherevans.fizzics.components;
 
 /**
  * Author: Fisher Evans

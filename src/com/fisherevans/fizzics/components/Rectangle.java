@@ -1,7 +1,9 @@
-package com.fisherevans.fizzics;
+package com.fisherevans.fizzics.components;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import com.fisherevans.fizzics.listeners.CollisionListener;
 
 /**
  * Author: Fisher Evans
