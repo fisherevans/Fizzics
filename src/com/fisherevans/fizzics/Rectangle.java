@@ -1,5 +1,8 @@
 package com.fisherevans.fizzics;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Author: Fisher Evans
  * Date: 12/16/13
@@ -11,6 +14,10 @@ public class Rectangle {
     private float _restitution = 0.8f;
     private boolean _isStatic = false;
     private boolean _isCollidable = true;
+
+    private float _friction = 1f;
+
+    private List<CollisionListener> _listeners = null;
 
     public Rectangle(float bottomLeftX, float bottomLeftY, float width, float height, boolean isStatic) {
         this(new Vector(bottomLeftX, bottomLeftY), width, height);
@@ -46,6 +53,18 @@ public class Rectangle {
 
     public void move(Vector m) {
         _bottomLeft.add(m);
+    }
+
+    public void travel(float delta) {
+        move(_velocity.getCopy().scale(delta));
+    }
+
+    public void applyFriction(float frictionShift) {
+        if (Math.abs(_velocity.getX()) < frictionShift) _velocity.setX(0);
+        else _velocity.setX(_velocity.getX() - (Math.signum(_velocity.getX()) * frictionShift));
+
+        if (Math.abs(_velocity.getY()) < frictionShift) _velocity.setY(0);
+        else _velocity.setY(_velocity.getY() - (Math.signum(_velocity.getY()) * frictionShift));
     }
 
   public float getCenterX() {
@@ -126,6 +145,32 @@ public class Rectangle {
 
     public boolean isCollidable() {
         return _isCollidable;
+    }
+
+    public float getFriction() {
+        return _friction;
+    }
+
+    public void setFriction(float friction) {
+        _friction = friction;
+    }
+
+    public void addListener(CollisionListener newListener) {
+        if(_listeners == null)
+            _listeners = new ArrayList<CollisionListener>(5);
+        _listeners.add(newListener);
+    }
+
+    public void removeListener(CollisionListener oldListener) {
+        if (_listeners != null)
+            _listeners.remove(oldListener);
+    }
+
+    public void callCollisionListners(Rectangle incomming) {
+        if (_listeners == null)
+            return;
+        for (CollisionListener listener : _listeners)
+            listener.collision(this, incomming);
     }
 
     public Rectangle getCopy() {

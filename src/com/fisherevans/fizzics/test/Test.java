@@ -1,5 +1,6 @@
 package com.fisherevans.fizzics.test;
 
+import com.fisherevans.fizzics.CollisionListener;
 import com.fisherevans.fizzics.GlobalCollisionListener;
 import com.fisherevans.fizzics.Rectangle;
 import com.fisherevans.fizzics.Vector;
@@ -13,10 +14,10 @@ import java.awt.*;
  * Date: 12/16/13
  */
 public class Test extends JPanel implements GlobalCollisionListener {
-    public static int HEIGHT = 400;
-    public static int WIDTH = 400;
+    public static int HEIGHT = 1000;
+    public static int WIDTH = 1000;
 
-    public static float SCALE = 20;
+    public static float SCALE = 50;
 
     private JFrame _frame;
 
@@ -57,11 +58,23 @@ public class Test extends JPanel implements GlobalCollisionListener {
         rect = new Rectangle(11, 4, 3, 3);
         rect.setVelocity(new Vector(20, 20));
         rect.setRestitution(0.8f);
-        _world.addRectangle(rect);
+        // _world.addRectangle(rect);
 
-        rect = new Rectangle(8, 10, 2, 2);
+        rect = new Rectangle(6, 8, 2, 2);
         rect.setVelocity(new Vector(15, 20));
         rect.setRestitution(0.8f);
+        _world.addRectangle(rect);
+
+        rect = new Rectangle(4.5f, 5.5f, 1, 1);
+        rect.setCollidable(false);
+        rect.setStatic(true);
+        rect.addListener(new CollisionListener() {
+            @Override
+            public void collision(Rectangle thisRectangle, Rectangle incommingRectangle) {
+                System.out.println("Killed it!");
+                _world.removeRectangle(thisRectangle);
+            }
+        });
         _world.addRectangle(rect);
 
         _lastPaint = System.currentTimeMillis();
@@ -80,7 +93,9 @@ public class Test extends JPanel implements GlobalCollisionListener {
         // System.out.println(delta);
         _world.step(0.017f);
 
-        g.setColor(new Color(200, 225, 255));
+        // g.setColor(new Color(200, 225, 255));
+        int color = 200;
+        g.setColor(new Color(color, color, color));
         for (Rectangle r : _world.getRectangles()) {
             g.fillRect((int) (r.getX1() * SCALE), // x
                        (int) (HEIGHT - r.getY1() * SCALE), // y
