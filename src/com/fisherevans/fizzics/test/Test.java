@@ -34,6 +34,8 @@ public class Test extends JPanel implements GlobalCollisionListener, KeyListener
 
     private Rectangle _player;
 
+    private boolean _canJump = true;
+
     public Test() {
         super();
         this.setPreferredSize(new Dimension(WIDTH, HEIGHT));
@@ -45,7 +47,7 @@ public class Test extends JPanel implements GlobalCollisionListener, KeyListener
         _frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         _frame.addKeyListener(this);
 
-        _world = new World(new Vector(0, -20));
+        _world = new World(new Vector(0, -25));
         _world.addGlobalCollisionListener(this);
 
         Rectangle r = new Rectangle(5, 15, 10, 1, true);
@@ -70,8 +72,8 @@ public class Test extends JPanel implements GlobalCollisionListener, KeyListener
         rect.setStatic(true);
         rect.addListener(new CollisionListener() {
             @Override
-            public void collision(Rectangle thisRectangle, Rectangle incommingRectangle, Side fromDirection) {
-                System.out.println("Hit from the " + fromDirection + " by " + incommingRectangle.toString());
+            public void collision(Rectangle thisRectangle, Rectangle incomingRectangle, Side fromDirection) {
+                System.out.println("Hit from the " + fromDirection + " by " + incomingRectangle.toString());
                 if (fromDirection == Side.South) {
                     System.out.println("Killed it!");
                     _world.removeRectangle(thisRectangle);
@@ -92,24 +94,35 @@ public class Test extends JPanel implements GlobalCollisionListener, KeyListener
         g.setColor(new Color(255, 255, 255));
         g.fillRect(0, 0, WIDTH, HEIGHT);
 
-        if (_up && _player.getFloor() == Side.South)
-            _player.getVelocity().setY(13);
-        else if(_up && _player.getWall() == Side.East)
-            _player.setVelocity(new Vector(-8.4f, 8.4f));
-        else if(_up && _player.getWall() == Side.West)
-            _player.setVelocity(new Vector(8.4f, 8.4f));
+        if(_canJump) {
+            if (_up && _player.getFloor() == Side.South) {
+                _player.getVelocity().setY(15);
+                _canJump = false;
+            } else if(_up && _player.getWall() == Side.East) {
+                _player.setVelocity(new Vector(-10f, 10f));
+                _canJump = false;
+            } else if(_up && _player.getWall() == Side.West) {
+                _player.setVelocity(new Vector(10f, 10f));
+                _canJump = false;
+            }
+        }
 
         float accel = _player.getFloor() == Side.South ? 50 : 10;
         if (_right && !_left)
             _player.getAcceleration().setX(_player.getVelocity().getX() < 10 ? accel : -accel);
         else if (_left && !_right)
             _player.getAcceleration().setX(_player.getVelocity().getX() > -10 ? -accel : accel);
-        else
-            _player.getAcceleration().setX(-_player.getVelocity().getX()*12.5f);
+        else {
+            if(Math.abs(_player.getVelocity().getX()) > 1) {
+                _player.getAcceleration().setX(_player.getVelocity().getX() > 0 ? -accel : accel);
+            } else {
+                _player.getAcceleration().setX(-_player.getVelocity().getX()*20f);
+            }
+        }
 
-        _world.step(delta);
+        //_world.step(delta);
         // System.out.println(delta);
-        // _world.step(0.017f);
+         _world.step(0.017f);
 
         // g.setColor(new Color(200, 225, 255));
         int color = 200;
@@ -168,6 +181,7 @@ public class Test extends JPanel implements GlobalCollisionListener, KeyListener
         switch (event.getKeyCode()) {
         case KeyEvent.VK_UP:
             _up = false;
+            _canJump = true;
             break;
         case KeyEvent.VK_LEFT:
             _left = false;

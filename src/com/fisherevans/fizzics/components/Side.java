@@ -14,6 +14,14 @@ public enum Side {
         case South:
             return North;
         }
-        return North; // never called
+        return null; // never called
+    }
+
+    public boolean isHorizontal() {
+        return this == West || this == East;
+    }
+
+    public boolean isVertical() {
+        return this == North || this == South;
     }
 }

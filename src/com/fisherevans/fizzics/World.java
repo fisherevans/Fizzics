@@ -14,6 +14,7 @@ import com.fisherevans.fizzics.listeners.GlobalCollisionListener;
  * Date: 12/16/13
  */
 public class World {
+    public static float SIDE_PROXIMITY = 0.01f;
     private Vector _gravity;
     private List<Rectangle> _rectangles, _rectanglesDeleteQueue, _rectanglesAddQueue;
     private List<GlobalCollisionListener> _listeners;
@@ -42,77 +43,68 @@ public class World {
     public void step(float delta) {
         runRectangleQueues();
 
-        Rectangle r1Before; // allocate loop variables
-        boolean isVerticalHit;
-        float r1v, r2v;
+        Rectangle r1Before;
         for(Rectangle r1:_rectangles) {
             if (!r1.isStatic() && r1.isSolid()) { // for each non static rectangle
                 r1Before = r1.getCopy(); // keep a copy of the position before movement
                 r1.travel(_gravity, delta);
                 for (Rectangle r2 : _rectangles) { // check for collisions
-                    if (r2 != r1 && r1.intersects(r2)) {
-                        resolveCollision(r1Before, r1, r2, delta);
+                    if (r2 != r1 && r1.inProximity(r2, SIDE_PROXIMITY)) {
+                        resolveProximity(r1Before.getSide(r2), r1, r2, delta);
                     }
                 } // inner loop of rectangles
             } // end if not static
         } // outer loops of rectangles
     }
     
-    private void resolveCollision(Rectangle r1Before, Rectangle r1, Rectangle r2, float delta) {
-        Side collisonDirection = Side.North;
-        if (r1Before.getX1() >= r2.getX2()) collisonDirection = Side.East;
-        else if (r1Before.getX2() <= r2.getX1()) collisonDirection = Side.West;
-        else if (r1Before.getY1() <= r2.getY2()) collisonDirection = Side.South;
-        else if (r1Before.getY2() >= r2.getY1()) collisonDirection = Side.North;
-
-        if(r2.isSolid()) { // !!!! ---> R1 is moving rectangle, R2 is the one it's hitting <--- !!!!
+    private void resolveProximity(Side collisionDirection, Rectangle r1, Rectangle r2, float delta) {
+        if(r2.isSolid() && r1.intersects(r2)) { // !!!! ---> R1 is moving rectangle, R2 is the one it's hitting <--- !!!!
             r1.applyFriction(r2.getFriction() * delta);
             if (!r2.isStatic())
                 r2.applyFriction(r1.getFriction() * delta);
 
-            switch (collisonDirection) {
-            case East:
+            if(collisionDirection == Side.East) {
                 r1.move(new Vector(r2.getX2() - r1.getX1(), 0));
-                break;
-            case West:
+            } else if(collisionDirection == Side.West) {
                 r1.move(new Vector(r2.getX1() - r1.getX2(), 0));
-                break;
-            case North:
+            } else if(collisionDirection == Side.North) {
                 r1.move(new Vector(0, r2.getY1() - r1.getY2()));
-                break;
-            case South:
+            } else if(collisionDirection == Side.South) {
                 r1.move(new Vector(0, r2.getY2() - r1.getY1()));
-                break;
             }
 
-            if (collisonDirection == Side.North || collisonDirection == Side.South) { // adjust vertical velocity if hitting from top/bottom
-                if (r2.isStatic())
+            if(r2.isStatic()) {
+                if(collisionDirection.isVertical()) {
                     r1.getVelocity().setY(r1.getVelocity().getY() * -1 * r1.getRestitution());
-                else {
+                } else {
+                    r1.getVelocity().setX(r1.getVelocity().getX() * -1 * r1.getRestitution());
+                }
+            } else {
+                if(collisionDirection.isVertical()) {
                     float r1vy = r2.getVelocity().getY() * r1.getRestitution();
                     float r2vy = r1.getVelocity().getY() * r2.getRestitution();
                     r1.getVelocity().setY(r1vy);
                     r2.getVelocity().setY(r2vy);
-                }
-                r2.setFloor(collisonDirection);
-                r1.setFloor(collisonDirection.getOppsite());
-            } else { // adjust horizontal velocity if hitting from left/right
-                if (r2.isStatic())
-                    r1.getVelocity().setX(r1.getVelocity().getX() * -1 * r1.getRestitution());
-                else {
+                } else {
                     float r1vx = r2.getVelocity().getX() * r1.getRestitution();
                     float r2vx = r1.getVelocity().getX() * r2.getRestitution();
                     r1.getVelocity().setX(r1vx);
                     r2.getVelocity().setX(r2vx);
                 }
-                r2.setWall(collisonDirection);
-                r1.setWall(collisonDirection.getOppsite());
             }
-        } // end if collidable
+        }
+
+        if(collisionDirection.isVertical()) {
+            r2.setFloor(collisionDirection);
+            r1.setFloor(collisionDirection.getOppsite());
+        } else {
+            r2.setWall(collisionDirection);
+            r1.setWall(collisionDirection.getOppsite());
+        }
 
         callGlobalCollisionListeners(r1, r2);
-        r1.callCollisionListners(r2, collisonDirection.getOppsite());
-        r2.callCollisionListners(r1, collisonDirection);
+        r1.callCollisionListners(r2, collisionDirection.getOppsite());
+        r2.callCollisionListners(r1, collisionDirection);
     }
 
     private void runRectangleQueues() {

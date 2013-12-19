@@ -3,6 +3,7 @@ package com.fisherevans.fizzics.components;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.fisherevans.fizzics.World;
 import com.fisherevans.fizzics.listeners.CollisionListener;
 
 /**
@@ -57,15 +58,23 @@ public class Rectangle {
     }
 
     public boolean intersects(Rectangle rec) {
-        if (getX2() <= rec.getX1())
-            return false;
-        if (getX1() >= rec.getX2())
-            return false;
-        if (getY2() >= rec.getY1())
-            return false;
-        if (getY1() <= rec.getY2())
-            return false;
+        return inProximity(rec, 0);
+    }
+
+    public boolean inProximity(Rectangle rec, float proximity) {
+        if (getX2() + proximity <= rec.getX1()) return false;
+        if (getX1() - proximity >= rec.getX2()) return false;
+        if (getY2() - proximity >= rec.getY1()) return false;
+        if (getY1() + proximity <= rec.getY2()) return false;
         return true;
+    }
+
+    public Side getSide(Rectangle rec) {
+        if (getX1() >= rec.getX2()) return Side.East;
+        else if (getX2() <= rec.getX1()) return Side.West;
+        else if (getY1() <= rec.getY2()) return Side.South;
+        else if (getY2() >= rec.getY1()) return Side.North;
+        return Side.North;
     }
 
     public void move(Vector m) {
