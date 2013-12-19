@@ -17,7 +17,7 @@ import java.awt.event.KeyListener;
  * Date: 12/16/13
  */
 public class Test extends JPanel implements GlobalCollisionListener, KeyListener {
-    public static final int SIZE = 140;
+    public static final int SIZE = 1000;
 
     public static int HEIGHT = SIZE;
     public static int WIDTH = SIZE;
@@ -50,25 +50,16 @@ public class Test extends JPanel implements GlobalCollisionListener, KeyListener
         _world = new World(-25);
         _world.addGlobalCollisionListener(this);
 
-        Rectangle r = new Rectangle(5, 15, 10, 1, true);
-        _world.addRectangle(r);
+        _world.addRectangle(new Rectangle(5, 15, 10, 1, true));
+        _world.addRectangle(new Rectangle(16, 4, 1, 10, true));
+        _world.addRectangle(new Rectangle(3, 2, 13, 1, true));
+        _world.addRectangle(new Rectangle(3, 4, 1, 8, true));
 
-        r = new Rectangle(16, 4, 1, 10, true);
-        _world.addRectangle(r);
-
-        r = new Rectangle(3, 2, 13, 1, true);
-        _world.addRectangle(r);
-
-        r = new Rectangle(3, 4, 1, 8, true);
-        _world.addRectangle(r);
-
-        Rectangle rect;
 
         _player = new Rectangle(9.5f, 8, 1f, 2);
-        // _player.setVelocity(new Vector(-10, -10));
         _world.addRectangle(_player);
 
-        rect = new Rectangle(8f, 10, 1, 1);
+        Rectangle rect = new Rectangle(8f, 10, 1, 1);
         rect.setSolid(true);
         rect.setStatic(true);
         rect.addListener(new CollisionListener() {
@@ -166,7 +157,7 @@ public class Test extends JPanel implements GlobalCollisionListener, KeyListener
 
     @Override
     public void globalCollision(Rectangle rect1, Rectangle rect2) {
-        System.out.println(rect1 + " banged " + rect2);
+        //System.out.println(rect1 + " banged " + rect2);
     }
 
     @Override

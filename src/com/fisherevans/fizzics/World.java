@@ -52,18 +52,20 @@ public class World {
                 collisionQueue = new FPriorityQueue<Rectangle>();
                 for (Rectangle r2 : _rectangles) { // check for collisions
                     if (r2 != r1 && r1.intersects(r2)) {
-                        collisionQueue.add(r2, r2.getCenterY());
+                        if(Math.abs(r1.getVelocity().getX()) > Math.abs(r1.getVelocity().getY()))
+                            collisionQueue.add(r2, -r1.getVelocity().getX()*r2.getCenterX());
+                        else
+                            collisionQueue.add(r2, -r1.getVelocity().getY()*r2.getCenterY());
                     }
                 }
-                while (collisionQueue.size() > 0) {
-                    r2i = collisionQueue.remove();
-                    resolveProximity(r1Before.getSide(r2i), r1, r2i, delta);
-                }
+                while (collisionQueue.size() > 0)
+                    resolveProximity(r1Before, r1, collisionQueue.remove(), delta);
             } // end if not static
         } // outer loops of rectangles
     }
     
-    private void resolveProximity(Side collisionDirection, Rectangle r1, Rectangle r2, float delta) {
+    private void resolveProximity(Rectangle r1Before, Rectangle r1, Rectangle r2, float delta) {
+        Side collisionDirection = r1Before.getSide(r2);
         if(r1.intersects(r2)) { // !!!! ---> R1 is moving rectangle, R2 is the one it's hitting <--- !!!!
             if(r2.isSolid()) {
                 r1.applyFriction(r2.getFriction() * delta);
