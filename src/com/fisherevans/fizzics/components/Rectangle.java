@@ -70,10 +70,10 @@ public class Rectangle {
     }
 
     public Side getSide(Rectangle rec) {
-        if (getX1() >= rec.getX2()) return Side.East;
+        if (getY2() >= rec.getY1()) return Side.North;
+        else if (getX1() >= rec.getX2()) return Side.East;
         else if (getX2() <= rec.getX1()) return Side.West;
         else if (getY1() <= rec.getY2()) return Side.South;
-        else if (getY2() >= rec.getY1()) return Side.North;
         return Side.North;
     }
 

@@ -17,7 +17,7 @@ import java.awt.event.KeyListener;
  * Date: 12/16/13
  */
 public class Test extends JPanel implements GlobalCollisionListener, KeyListener {
-    public static final int SIZE = 1000;
+    public static final int SIZE = 150;
 
     public static int HEIGHT = SIZE;
     public static int WIDTH = SIZE;
@@ -56,7 +56,7 @@ public class Test extends JPanel implements GlobalCollisionListener, KeyListener
         r = new Rectangle(16, 4, 1, 10, true);
         _world.addRectangle(r);
 
-        r = new Rectangle(5, 2, 10, 1, true);
+        r = new Rectangle(3, 2, 13, 1, true);
         _world.addRectangle(r);
 
         r = new Rectangle(3, 4, 1, 8, true);
@@ -64,10 +64,11 @@ public class Test extends JPanel implements GlobalCollisionListener, KeyListener
 
         Rectangle rect;
 
-        _player = new Rectangle(10, 10, 1.25f, 2);
+        _player = new Rectangle(9, 8, 1f, 2);
+        _player.setVelocity(new Vector(-10, -10));
         _world.addRectangle(_player);
 
-        rect = new Rectangle(8f, 5.5f, 1, 1);
+        rect = new Rectangle(8f, 10, 1, 1);
         rect.setSolid(true);
         rect.setStatic(true);
         rect.addListener(new CollisionListener() {
@@ -81,6 +82,10 @@ public class Test extends JPanel implements GlobalCollisionListener, KeyListener
             }
         });
         _world.addRectangle(rect);
+
+        _world.addRectangle(new Rectangle(6, 6, 1, 1, true));
+        _world.addRectangle(new Rectangle(7, 6, 1, 1, true));
+        _world.addRectangle(new Rectangle(8, 6, 1, 1, true));
 
         _lastPaint = System.currentTimeMillis();
     }
@@ -107,22 +112,22 @@ public class Test extends JPanel implements GlobalCollisionListener, KeyListener
             }
         }
 
-        float accel = _player.getFloor() == Side.South ? 50 : 10;
+        float accel = _player.getFloor() == Side.South ? 100 : 15;
         if (_right && !_left)
             _player.getAcceleration().setX(_player.getVelocity().getX() < 10 ? accel : -accel);
         else if (_left && !_right)
             _player.getAcceleration().setX(_player.getVelocity().getX() > -10 ? -accel : accel);
         else {
-            if(Math.abs(_player.getVelocity().getX()) > 1) {
+            if (Math.abs(_player.getVelocity().getX()) > 0.5) {
                 _player.getAcceleration().setX(_player.getVelocity().getX() > 0 ? -accel : accel);
             } else {
                 _player.getAcceleration().setX(-_player.getVelocity().getX()*20f);
             }
         }
 
-        //_world.step(delta);
+        _world.step(delta);
         // System.out.println(delta);
-         _world.step(0.017f);
+        // _world.step(0.0017f);
 
         // g.setColor(new Color(200, 225, 255));
         int color = 200;
