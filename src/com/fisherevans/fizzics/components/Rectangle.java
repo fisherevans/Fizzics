@@ -77,6 +77,18 @@ public class Rectangle {
         return Side.North;
     }
 
+    public float getIntersectionArea(Rectangle rect) {
+        float width, height;
+        
+        if(getX2() > rect.getX1()) width = getX2() - rect.getX1();
+        else width = rect.getX2() - getX1();
+        
+        if (getY2() < rect.getY1()) height = getY1() - rect.getY2();
+        else height = rect.getY1() - getY2();
+        
+        return width * height;
+    }
+
     public void move(Vector m) {
         _bottomLeft.add(m);
     }

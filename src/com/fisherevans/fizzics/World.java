@@ -8,6 +8,7 @@ import com.fisherevans.fizzics.components.Rectangle;
 import com.fisherevans.fizzics.components.Side;
 import com.fisherevans.fizzics.components.Vector;
 import com.fisherevans.fizzics.listeners.GlobalCollisionListener;
+import com.fisherevans.priorityQueue.FPriorityQueue;
 
 /**
  * Author: Fisher Evans
@@ -18,10 +19,9 @@ public class World {
     private Vector _gravity;
     private List<Rectangle> _rectangles, _rectanglesDeleteQueue, _rectanglesAddQueue;
     private List<GlobalCollisionListener> _listeners;
-    private Side _floor = Side.South;
 
-    public World(Vector gravity) {
-        _gravity = gravity;
+    public World(float gravity) {
+        setGravity(gravity);
         _rectangles = new ArrayList<Rectangle>();
         _rectanglesAddQueue = new LinkedList<Rectangle>();
         _rectanglesDeleteQueue = new LinkedList<Rectangle>();
@@ -43,16 +43,22 @@ public class World {
     public void step(float delta) {
         runRectangleQueues();
 
-        Rectangle r1Before;
+        Rectangle r1Before, r2i;
+        FPriorityQueue<Rectangle> collisionQueue;
         for(Rectangle r1:_rectangles) {
             if (!r1.isStatic() && r1.isSolid()) { // for each non static rectangle
                 r1Before = r1.getCopy(); // keep a copy of the position before movement
                 r1.travel(_gravity, delta);
+                collisionQueue = new FPriorityQueue<Rectangle>();
                 for (Rectangle r2 : _rectangles) { // check for collisions
-                    if (r2 != r1 && r1.inProximity(r2, SIDE_PROXIMITY)) {
-                        resolveProximity(r1Before.getSide(r2), r1, r2, delta);
+                    if (r2 != r1 && r1.intersects(r2)) {
+                        collisionQueue.add(r2, r2.getCenterY());
                     }
-                } // inner loop of rectangles
+                }
+                while (collisionQueue.size() > 0) {
+                    r2i = collisionQueue.remove();
+                    resolveProximity(r1Before.getSide(r2i), r1, r2i, delta);
+                }
             } // end if not static
         } // outer loops of rectangles
     }
@@ -106,6 +112,10 @@ public class World {
             r2.setWall(collisionDirection);
             r1.setWall(collisionDirection.getOppsite());
         }
+    }
+
+    public void setGravity(float gravity) {
+        _gravity = new Vector(0, gravity);
     }
 
     private void runRectangleQueues() {

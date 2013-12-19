@@ -17,7 +17,7 @@ import java.awt.event.KeyListener;
  * Date: 12/16/13
  */
 public class Test extends JPanel implements GlobalCollisionListener, KeyListener {
-    public static final int SIZE = 150;
+    public static final int SIZE = 140;
 
     public static int HEIGHT = SIZE;
     public static int WIDTH = SIZE;
@@ -47,7 +47,7 @@ public class Test extends JPanel implements GlobalCollisionListener, KeyListener
         _frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         _frame.addKeyListener(this);
 
-        _world = new World(new Vector(0, -25));
+        _world = new World(-25);
         _world.addGlobalCollisionListener(this);
 
         Rectangle r = new Rectangle(5, 15, 10, 1, true);
@@ -64,8 +64,8 @@ public class Test extends JPanel implements GlobalCollisionListener, KeyListener
 
         Rectangle rect;
 
-        _player = new Rectangle(9, 8, 1f, 2);
-        _player.setVelocity(new Vector(-10, -10));
+        _player = new Rectangle(9.5f, 8, 1f, 2);
+        // _player.setVelocity(new Vector(-10, -10));
         _world.addRectangle(_player);
 
         rect = new Rectangle(8f, 10, 1, 1);
@@ -74,9 +74,7 @@ public class Test extends JPanel implements GlobalCollisionListener, KeyListener
         rect.addListener(new CollisionListener() {
             @Override
             public void collision(Rectangle thisRectangle, Rectangle incomingRectangle, Side fromDirection) {
-                System.out.println("Hit from the " + fromDirection + " by " + incomingRectangle.toString());
                 if (fromDirection == Side.South) {
-                    System.out.println("Killed it!");
                     _world.removeRectangle(thisRectangle);
                 }
             }
@@ -86,6 +84,10 @@ public class Test extends JPanel implements GlobalCollisionListener, KeyListener
         _world.addRectangle(new Rectangle(6, 6, 1, 1, true));
         _world.addRectangle(new Rectangle(7, 6, 1, 1, true));
         _world.addRectangle(new Rectangle(8, 6, 1, 1, true));
+
+        _world.addRectangle(new Rectangle(12, 6, 1, 1, true));
+        _world.addRectangle(new Rectangle(12, 7, 1, 1, true));
+        _world.addRectangle(new Rectangle(12, 8, 1, 1, true));
 
         _lastPaint = System.currentTimeMillis();
     }
@@ -125,9 +127,10 @@ public class Test extends JPanel implements GlobalCollisionListener, KeyListener
             }
         }
 
-        _world.step(delta);
+        // _world.step(delta);
         // System.out.println(delta);
         // _world.step(0.0017f);
+        _world.step(0.017f);
 
         // g.setColor(new Color(200, 225, 255));
         int color = 200;
@@ -163,7 +166,7 @@ public class Test extends JPanel implements GlobalCollisionListener, KeyListener
 
     @Override
     public void globalCollision(Rectangle rect1, Rectangle rect2) {
-        // System.out.println(rect1 + " banged " + rect2);
+        System.out.println(rect1 + " banged " + rect2);
     }
 
     @Override
