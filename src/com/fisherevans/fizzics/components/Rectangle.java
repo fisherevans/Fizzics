@@ -10,14 +10,14 @@ import com.fisherevans.fizzics.listeners.CollisionListener;
  * Date: 12/16/13
  */
 public class Rectangle {
-    private Vector _bottomLeft, _velocity, _externalVelocity;
+    private Vector _bottomLeft, _velocity, _acceleration;
     private float _width, _height;
     private float _restitution = 0f;
-    private boolean _isStatic = false;
-    private boolean _isCollidable = true;
-    private float _friction = 15f;
-    private Side _onWall = null;
-    private Side _onFloor = null;
+    private float _friction = 0f;
+    private boolean _static = false;
+    private boolean _solid = true;
+    private Side _wall = null;
+    private Side _floor = null;
 
     private List<CollisionListener> _listeners = null;
 
@@ -33,19 +33,19 @@ public class Rectangle {
         _bottomLeft = bottomLeft;
         _width = width;
         _height = height;
-        _isStatic = isStatic;
+        _static = isStatic;
         _velocity = new Vector(0, 0);
-        _externalVelocity = new Vector(0, 0);
+        _acceleration = new Vector(0, 0);
     }
 
-    public Rectangle(Vector bottomLeft, float width, float height, Vector velocity, float restitution, float friction, boolean isStatic, boolean isCollidable) {
+    public Rectangle(Vector bottomLeft, float width, float height, Vector velocity, float restitution, float friction, boolean isStatic, boolean collidable) {
         _bottomLeft = bottomLeft;
         _velocity = velocity;
         _width = width;
         _height = height;
         _restitution = restitution;
-        _isStatic = isStatic;
-        _isCollidable = isCollidable;
+        _static = isStatic;
+        _solid = collidable;
         _friction = friction;
     }
 
@@ -72,10 +72,11 @@ public class Rectangle {
         _bottomLeft.add(m);
     }
 
-    public void travel(float delta) {
-        move(_velocity.getCopy().add(_externalVelocity).scale(delta));
-        _onFloor = null;
-        _onWall = null;
+    public void travel(Vector gravity, float delta) {
+        _velocity.add(_acceleration.getCopy().add(gravity).scale(delta));
+        move(_velocity.getCopy().scale(delta));
+        _floor = null;
+        _wall = null;
     }
 
     public void applyFriction(float frictionShift) {
@@ -143,27 +144,27 @@ public class Rectangle {
     }
 
     public boolean isStatic() {
-        return _isStatic;
+        return _static;
     }
 
     public void setStatic(boolean isStatic) {
-        _isStatic = isStatic;
+        _static = isStatic;
     }
 
     public float getRestitution() {
         return _restitution;
     }
 
-    public void setRestitution(float restitiution) {
-        _restitution = restitiution;
+    public void setRestitution(float restitution) {
+        _restitution = restitution;
     }
 
-    public void setCollidable(boolean isCollidable) {
-        _isCollidable = isCollidable;
+    public void setSolid(boolean isSolid) {
+        _solid = isSolid;
     }
 
-    public boolean isCollidable() {
-        return _isCollidable;
+    public boolean isSolid() {
+        return _solid;
     }
 
     public float getFriction() {
@@ -174,28 +175,28 @@ public class Rectangle {
         _friction = friction;
     }
 
-    public Vector getExternalVelocity() {
-        return _externalVelocity;
+    public Side getWall() {
+        return _wall;
     }
 
-    public void setExternalVelocity(Vector externalVelocity) {
-        _externalVelocity = externalVelocity;
+    public void setWall(Side wall) {
+        _wall = wall;
     }
 
-    public Side getOnWall() {
-        return _onWall;
+    public Side getFloor() {
+        return _floor;
     }
 
-    public void setOnWall(Side onWall) {
-        _onWall = onWall;
+    public void setFloor(Side floor) {
+        _floor = floor;
     }
 
-    public Side getOnFloor() {
-        return _onFloor;
+    public Vector getAcceleration() {
+        return _acceleration;
     }
 
-    public void setOnFloor(Side onFloor) {
-        _onFloor = onFloor;
+    public void setAcceleration(Vector acceleration) {
+        _acceleration = acceleration;
     }
 
     public void addListener(CollisionListener newListener) {
@@ -219,9 +220,9 @@ public class Rectangle {
     public Rectangle getCopy() {
         Rectangle rect = new Rectangle(getBottomLeft().getCopy(), getWidth(), getHeight(), isStatic());
         rect.setVelocity(getVelocity().getCopy());
-        rect.setCollidable(isCollidable());
+        rect.setSolid(isSolid());
         rect.setRestitution(getRestitution());
-        rect.setExternalVelocity(getExternalVelocity());
+        rect.setAcceleration(getAcceleration());
         return rect;
     }
 
@@ -229,6 +230,6 @@ public class Rectangle {
     public String toString() {
         return String.format("[X:%4.2f, Y:%4.2f, W:%4.2f, H:%4.2f, R:%4.2f, S:%s, C:%s, F:%4.2f]",
                 _bottomLeft.getX(), _bottomLeft.getY(), _width, _height,
-                _restitution, _isStatic ? "T" : "F", _isCollidable ? "T" : "F", _friction);
+                _restitution, _static ? "T" : "F", _solid ? "T" : "F", _friction);
     }
 }

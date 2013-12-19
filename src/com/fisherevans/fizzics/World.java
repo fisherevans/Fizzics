@@ -42,16 +42,13 @@ public class World {
     public void step(float delta) {
         runRectangleQueues();
 
-        Vector gravityVector = _gravity.getCopy().scale(delta);
-
         Rectangle r1Before; // allocate loop variables
         boolean isVerticalHit;
         float r1v, r2v;
         for(Rectangle r1:_rectangles) {
-            if (!r1.isStatic() && r1.isCollidable()) { // for each non static rectangle
+            if (!r1.isStatic() && r1.isSolid()) { // for each non static rectangle
                 r1Before = r1.getCopy(); // keep a copy of the position before movement
-                r1.getVelocity().add(gravityVector);
-                r1.travel(delta);
+                r1.travel(_gravity, delta);
                 for (Rectangle r2 : _rectangles) { // check for collisions
                     if (r2 != r1 && r1.intersects(r2)) {
                         resolveCollision(r1Before, r1, r2, delta);
@@ -68,7 +65,7 @@ public class World {
         else if (r1Before.getY1() <= r2.getY2()) collisonDirection = Side.South;
         else if (r1Before.getY2() >= r2.getY1()) collisonDirection = Side.North;
 
-        if(r2.isCollidable()) { // !!!! ---> R1 is moving rectangle, R2 is the one it's hitting <--- !!!!
+        if(r2.isSolid()) { // !!!! ---> R1 is moving rectangle, R2 is the one it's hitting <--- !!!!
             r1.applyFriction(r2.getFriction() * delta);
             if (!r2.isStatic())
                 r2.applyFriction(r1.getFriction() * delta);
@@ -97,8 +94,8 @@ public class World {
                     r1.getVelocity().setY(r1vy);
                     r2.getVelocity().setY(r2vy);
                 }
-                r2.setOnFloor(collisonDirection);
-                r1.setOnFloor(collisonDirection.getOppsite());
+                r2.setFloor(collisonDirection);
+                r1.setFloor(collisonDirection.getOppsite());
             } else { // adjust horizontal velocity if hitting from left/right
                 if (r2.isStatic())
                     r1.getVelocity().setX(r1.getVelocity().getX() * -1 * r1.getRestitution());
@@ -108,8 +105,8 @@ public class World {
                     r1.getVelocity().setX(r1vx);
                     r2.getVelocity().setX(r2vx);
                 }
-                r2.setOnWall(collisonDirection);
-                r1.setOnWall(collisonDirection.getOppsite());
+                r2.setWall(collisonDirection);
+                r1.setWall(collisonDirection.getOppsite());
             }
         } // end if collidable
 
