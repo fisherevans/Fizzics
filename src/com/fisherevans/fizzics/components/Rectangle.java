@@ -154,7 +154,7 @@ public class Rectangle {
         
         float xDiff = getCenterX() - rec.getCenterX();
         float yDiff = getCenterY() - rec.getCenterY();
-        if(Math.abs(xDiff) > Math.abs(yDiff)) {
+        if (Math.abs(xDiff) - (getWidth() + rec.getWidth()) / 2f > Math.abs(yDiff) - (getHeight() + rec.getHeight()) / 2f) {
             if (xDiff < 0)
                 return Side.West;
             else

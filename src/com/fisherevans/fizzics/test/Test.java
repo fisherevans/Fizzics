@@ -17,7 +17,7 @@ import java.awt.event.KeyListener;
  * Date: 12/16/13
  */
 public class Test extends JPanel implements GlobalCollisionListener, KeyListener {
-    public static final int SIZE = 200;
+    public static final int SIZE = 1000;
 
     public static int HEIGHT = SIZE;
     public static int WIDTH = SIZE;
@@ -78,7 +78,7 @@ public class Test extends JPanel implements GlobalCollisionListener, KeyListener
 
         _world.addRectangle(new Rectangle(12, 6, 1, 1, true));
         _world.addRectangle(new Rectangle(12, 7, 1, 1, true));
-        _world.addRectangle(new Rectangle(12, 8, 1, 1, true));
+        _world.addRectangle(new Rectangle(12, 8, 1, 2, true));
 
         Rectangle r2 = new Rectangle(9.5f, 8, 1.5f, 1.5f);
         r2.setRestitution(0.9f);
@@ -123,7 +123,7 @@ public class Test extends JPanel implements GlobalCollisionListener, KeyListener
             if (Math.abs(_player.getVelocity().getX()) > 0.5) {
                 _player.getAcceleration().setX(_player.getVelocity().getX() > 0 ? -accel : accel);
             } else {
-                _player.getAcceleration().setX(-_player.getVelocity().getX()*20f);
+                _player.getAcceleration().setX(-_player.getVelocity().getX() * 20f);
             }
         }
 
@@ -136,10 +136,16 @@ public class Test extends JPanel implements GlobalCollisionListener, KeyListener
         int color = 200;
         g.setColor(new Color(color, color, color));
         for (Rectangle r : _world.getRectangles()) {
+            g.setColor(new Color(color, color, color));
             g.fillRect((int) (r.getX1() * SCALE), // x
                        (int) (HEIGHT - r.getY1() * SCALE), // y
                        (int) (r.getWidth() * SCALE), // width
                        (int) (r.getHeight() * SCALE)); // height
+            g.setColor(new Color(0, 0, 0));
+            g.drawRect((int) (r.getX1() * SCALE), // x
+                    (int) (HEIGHT - r.getY1() * SCALE), // y
+                    (int) (r.getWidth() * SCALE - 1), // width
+                    (int) (r.getHeight() * SCALE - 1)); // height
         }
         
         g.setColor(Color.black);
