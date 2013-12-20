@@ -151,7 +151,20 @@ public class Rectangle {
         else if (getX1() >= rec.getX2()) return Side.East;
         else if (getX2() <= rec.getX1()) return Side.West;
         else if (getY1() <= rec.getY2()) return Side.South;
-        return Side.North;
+        
+        float xDiff = getCenterX() - rec.getCenterX();
+        float yDiff = getCenterY() - rec.getCenterY();
+        if(Math.abs(xDiff) > Math.abs(yDiff)) {
+            if (xDiff < 0)
+                return Side.West;
+            else
+                return Side.East;
+        } else {
+            if (yDiff < 0)
+                return Side.South;
+            else
+                return Side.North;
+        }
     }
 
     /**

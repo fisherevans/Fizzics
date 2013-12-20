@@ -17,7 +17,7 @@ import java.awt.event.KeyListener;
  * Date: 12/16/13
  */
 public class Test extends JPanel implements GlobalCollisionListener, KeyListener {
-    public static final int SIZE = 1000;
+    public static final int SIZE = 200;
 
     public static int HEIGHT = SIZE;
     public static int WIDTH = SIZE;
@@ -56,7 +56,7 @@ public class Test extends JPanel implements GlobalCollisionListener, KeyListener
         _world.addRectangle(new Rectangle(3, 4, 1, 8, true));
 
 
-        _player = new Rectangle(9.5f, 8, 1f, 2);
+        _player = new Rectangle(9.5f, 12, 1f, 2);
         _world.addRectangle(_player);
 
         Rectangle rect = new Rectangle(8f, 10, 1, 1);
@@ -80,6 +80,10 @@ public class Test extends JPanel implements GlobalCollisionListener, KeyListener
         _world.addRectangle(new Rectangle(12, 7, 1, 1, true));
         _world.addRectangle(new Rectangle(12, 8, 1, 1, true));
 
+        Rectangle r2 = new Rectangle(9.5f, 8, 1.5f, 1.5f);
+        r2.setRestitution(0.9f);
+        _world.addRectangle(r2);
+
         _lastPaint = System.currentTimeMillis();
     }
 
@@ -91,6 +95,11 @@ public class Test extends JPanel implements GlobalCollisionListener, KeyListener
 
         g.setColor(new Color(255, 255, 255));
         g.fillRect(0, 0, WIDTH, HEIGHT);
+        
+        if (_player.getBottomLeft().getY() < -50) {
+            _player.setBottomLeft(new Vector(9.5f, 8));
+            _player.getVelocity().scale(-1);
+        }
 
         if(_canJump) {
             if (_up && _player.getFloor() == Side.South) {
@@ -105,7 +114,7 @@ public class Test extends JPanel implements GlobalCollisionListener, KeyListener
             }
         }
 
-        float accel = _player.getFloor() == Side.South ? 100 : 15;
+        float accel = _player.getFloor() == Side.South ? 100 : 16.35f;
         if (_right && !_left)
             _player.getAcceleration().setX(_player.getVelocity().getX() < 10 ? accel : -accel);
         else if (_left && !_right)
