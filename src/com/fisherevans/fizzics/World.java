@@ -25,10 +25,10 @@ public class World {
      */
     public World(float gravity) {
         setGravity(gravity);
-        _rectangles = new ArrayList<Rectangle>();
+        _rectangles = new LinkedList<Rectangle>();
         _rectanglesAddQueue = new LinkedList<Rectangle>();
         _rectanglesDeleteQueue = new LinkedList<Rectangle>();
-        _listeners = new ArrayList<GlobalCollisionListener>();
+        _listeners = new LinkedList<GlobalCollisionListener>();
     }
 
     /**
