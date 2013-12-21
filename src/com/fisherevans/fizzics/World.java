@@ -35,7 +35,7 @@ public class World {
      * Adds a rectangle to the addition queue. The rectangle will not be added to the world until the next step();
      * @param newRec the new rectangle
      */
-    public void addRectangle(Rectangle newRec) {
+    public void add(Rectangle newRec) {
         _rectanglesAddQueue.add(newRec);
     }
 
@@ -43,7 +43,7 @@ public class World {
      * Adds a rectangle to the deletion queue. The rectangle will not be removed from the world until the next step();
      * @param oldRec the old rectangle
      */
-    public void removeRectangle(Rectangle oldRec) {
+    public void remove(Rectangle oldRec) {
         _rectanglesDeleteQueue.add(oldRec);
     }
 

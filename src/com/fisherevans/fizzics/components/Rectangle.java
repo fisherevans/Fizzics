@@ -147,11 +147,6 @@ public class Rectangle {
      * @return the side the given rectangle is on
      */
     public Side getSide(Rectangle rec) {
-        if (getY2() >= rec.getY1()) return Side.North;
-        else if (getX1() >= rec.getX2()) return Side.East;
-        else if (getX2() <= rec.getX1()) return Side.West;
-        else if (getY1() <= rec.getY2()) return Side.South;
-        
         float xDiff = getCenterX() - rec.getCenterX();
         float yDiff = getCenterY() - rec.getCenterY();
         if (Math.abs(xDiff) - (getWidth() + rec.getWidth()) / 2f > Math.abs(yDiff) - (getHeight() + rec.getHeight()) / 2f) {
