@@ -1,10 +1,9 @@
 package com.fisherevans.fizzics;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 import com.fisherevans.fizzics.components.Rectangle;
+import com.fisherevans.fizzics.components.RectangleSorter;
 import com.fisherevans.fizzics.components.Side;
 import com.fisherevans.fizzics.components.Vector;
 import com.fisherevans.fizzics.listeners.GlobalCollisionListener;
@@ -16,8 +15,11 @@ import com.fisherevans.fizzics.listeners.GlobalCollisionListener;
  */
 public class World {
     private Vector _gravity;
-    private List<Rectangle> _rectangles, _rectanglesDeleteQueue, _rectanglesAddQueue;
+    private Comparator<Rectangle> _rectangleComparator;
+    private PriorityQueue<Rectangle> _rectangles;
+    private List<Rectangle> _rectanglesDeleteQueue, _rectanglesAddQueue;
     private List<GlobalCollisionListener> _listeners;
+    private int _iterations = 1;
 
     /**
      * Creates the world starting with a supplied gravity.
@@ -25,7 +27,8 @@ public class World {
      */
     public World(float gravity) {
         setGravity(gravity);
-        _rectangles = new LinkedList<Rectangle>();
+        _rectangleComparator = new RectangleSorter(this);
+        _rectangles = new PriorityQueue<Rectangle>(50, _rectangleComparator);
         _rectanglesAddQueue = new LinkedList<Rectangle>();
         _rectanglesDeleteQueue = new LinkedList<Rectangle>();
         _listeners = new LinkedList<GlobalCollisionListener>();
@@ -51,7 +54,7 @@ public class World {
      * Gets the current list of rectangles in this world
      * @return the list of rectangles in this world
      */
-    public List<Rectangle> getRectangles() {
+    public PriorityQueue<Rectangle> getRectangles() {
         return _rectangles;
     }
 
@@ -64,25 +67,33 @@ public class World {
      */
     public void step(float delta) {
         runRectangleQueues();
-        Rectangle r1Before;
         CollisionQueue collisionQueue;
-        for(Rectangle r1:_rectangles) {
-            if (!r1.isStatic() && r1.isSolid()) { // for each non static rectangle
-                r1Before = r1.getCopy(); // keep a copy of the position before movement
-                r1.travel(_gravity, delta);
-                collisionQueue = new CollisionQueue();
-                for (Rectangle r2 : _rectangles) { // check for collisions
-                    if (r2 != r1 && r1.intersects(r2)) { // add to collision queue based on location
-                        if(Math.abs(r1.getVelocity().getX()) > Math.abs(r1.getVelocity().getY()))
-                            collisionQueue.add(r2, -r1.getVelocity().getX()*r2.getCenterX());
-                        else
-                            collisionQueue.add(r2, -r1.getVelocity().getY()*r2.getCenterY());
+        List<Rectangle> r1Befores = new ArrayList<Rectangle>(_rectangles.size());
+        while(r1Befores.size() < _rectangles.size()) r1Befores.add(null);
+
+        for(int iteration = 0;iteration < _iterations;iteration++) {
+            int rectId = 0;
+            for(Rectangle r1:_rectangles) {
+                if (!r1.isStatic() && r1.isSolid()) { // for each non static rectangle
+                    if(iteration == 0) {
+                        r1Befores.set(rectId, r1.getCopy()); // keep a copy of the position before movement
+                        r1.travel(_gravity, delta);
                     }
-                }
-                while (collisionQueue.size() > 0) // process each collision
-                    resolveCollision(r1Before, r1, collisionQueue.remove(), delta);
-            } // end if not static
-        } // outer loops of rectangles
+                    collisionQueue = new CollisionQueue();
+                    for (Rectangle r2 : _rectangles) { // check for collisions
+                        if (r2 != r1 && r1.intersects(r2)) { // add to collision queue based on location
+                            if(Math.abs(r1.getVelocity().getX()) > Math.abs(r1.getVelocity().getY()))
+                                collisionQueue.add(r2, -r1.getVelocity().getX()*r2.getCenterX());
+                            else
+                                collisionQueue.add(r2, -r1.getVelocity().getY()*r2.getCenterY());
+                        }
+                    }
+                    while (collisionQueue.size() > 0) // process each collision
+                        resolveCollision(r1Befores.get(rectId), r1, collisionQueue.remove(), delta);
+                } // end if not static
+            } // outer loops of rectangles
+            rectId++;
+        }
     }
 
     /**
@@ -102,12 +113,16 @@ public class World {
 
                 if(collisionDirection == Side.East) { // move r1 out of collision
                     r1.move(new Vector(r2.getX2() - r1.getX1(), 0));
+                    r1.getVelocity().setX(r1.getVelocity().getX() - (r1.getX1() - r2.getX2()));
                 } else if(collisionDirection == Side.West) {
                     r1.move(new Vector(r2.getX1() - r1.getX2(), 0));
+                    r1.getVelocity().setX(r1.getVelocity().getX() - (r1.getX2() - r2.getX1()));
                 } else if(collisionDirection == Side.North) {
                     r1.move(new Vector(0, r2.getY1() - r1.getY2()));
+                    r1.getVelocity().setY(r1.getVelocity().getY() - (r2.getY2() - r1.getY1()));
                 } else if(collisionDirection == Side.South) {
                     r1.move(new Vector(0, r2.getY2() - r1.getY1()));
+                    r1.getVelocity().setY(r1.getVelocity().getY() - (r2.getY1() - r1.getY2()));
                 }
 
                 if(r2.isStatic()) { // update velocity after collision
@@ -188,5 +203,17 @@ public class World {
      */
     public void removeGlobalCollisionListener(GlobalCollisionListener listener) {
         _listeners.remove(listener);
+    }
+
+    public int getIterations() {
+        return _iterations;
+    }
+
+    public void setIterations(int iterations) {
+        _iterations = iterations;
+    }
+
+    public float getGravity() {
+        return _gravity.getY();
     }
 }

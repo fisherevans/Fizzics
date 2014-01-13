@@ -106,6 +106,30 @@ public class Rectangle {
         _solid = solid;
     }
 
+    public Rectangle(String definition) throws Exception {
+        String[] props = definition.split(",");
+        _bottomLeft = new Vector(Float.parseFloat(props[0]), Float.parseFloat(props[1]));
+        _velocity = new Vector(Float.parseFloat(props[2]), Float.parseFloat(props[3]));
+        _acceleration = new Vector(Float.parseFloat(props[4]), Float.parseFloat(props[5]));
+        _width = Float.parseFloat(props[6]);
+        _height = Float.parseFloat(props[7]);
+        _restitution = Float.parseFloat(props[8]);
+        _friction = Float.parseFloat(props[9]);
+        _static = props[10].equals("true");
+        _solid = props[11].equals("true");
+    }
+
+    public String getStringDefinition() {
+        return String.format("%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%s,%s",
+                _bottomLeft.getX(), _bottomLeft.getY(),
+                _velocity.getX(), _velocity.getY(),
+                _acceleration.getX(), _acceleration.getY(),
+                _width, _height,
+                _restitution, _friction,
+                _static ? "true" : " false",
+                _solid ? "true" : " false");
+    }
+
     /**
      * checks whether a given point is inside this rectangle
      * @param p the point to check
