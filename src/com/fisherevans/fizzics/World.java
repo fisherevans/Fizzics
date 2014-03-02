@@ -7,6 +7,7 @@ import com.fisherevans.fizzics.components.RectangleSorter;
 import com.fisherevans.fizzics.components.Side;
 import com.fisherevans.fizzics.components.Vector;
 import com.fisherevans.fizzics.listeners.GlobalCollisionListener;
+import com.fisherevans.fizzics.listeners.GlobalIntersectionListener;
 
 /**
  * A simple 2D physics world that updates rectangle positions based on time and colliding rectangles
@@ -18,7 +19,8 @@ public class World {
     private Comparator<Rectangle> _rectangleComparator;
     private PriorityQueue<Rectangle> _rectangles;
     private List<Rectangle> _rectanglesDeleteQueue, _rectanglesAddQueue;
-    private List<GlobalCollisionListener> _listeners;
+    private List<GlobalCollisionListener> _collisionListeners;
+    private List<GlobalIntersectionListener> _intersectionListeners;
     private int _iterations = 1;
 
     /**
@@ -31,7 +33,8 @@ public class World {
         _rectangles = new PriorityQueue<Rectangle>(50, _rectangleComparator);
         _rectanglesAddQueue = new LinkedList<Rectangle>();
         _rectanglesDeleteQueue = new LinkedList<Rectangle>();
-        _listeners = new LinkedList<GlobalCollisionListener>();
+        _collisionListeners = new LinkedList<GlobalCollisionListener>();
+        _intersectionListeners = new LinkedList<GlobalIntersectionListener>();
     }
 
     /**
@@ -104,6 +107,10 @@ public class World {
      * @param delta the time delta since the last step in seconds
      */
     private void resolveCollision(Rectangle r1Before, Rectangle r1, Rectangle r2, float delta) {
+        r1.callIntersectionListeners(r2);
+        r2.callIntersectionListeners(r1);
+        if((r1.isResolveWithStaticOnly() && !r2.isStatic())||(r2.isResolveWithStaticOnly() && !r1.isStatic()))
+            return;
         Side collisionDirection = r1Before.getSide(r2);
         if(r1.intersects(r2)) { // !!!! ---> R1 is moving rectangle, R2 is the one it's hitting <--- !!!!
             if(r2.isSolid()) { // if it needs resolution (not a ghost)
@@ -184,7 +191,7 @@ public class World {
      * @param rect2 the other
      */
     private void callGlobalCollisionListeners(Rectangle rect1, Rectangle rect2) {
-        for (GlobalCollisionListener listener : _listeners) { // call listeners
+        for (GlobalCollisionListener listener : _collisionListeners) { // call listeners
             listener.globalCollision(rect1, rect2);
         }
     }
@@ -194,7 +201,7 @@ public class World {
      * @param listener the new listener
      */
     public void addGlobalCollisionListener(GlobalCollisionListener listener) {
-        _listeners.add(listener);
+        _collisionListeners.add(listener);
     }
 
     /**
@@ -202,7 +209,34 @@ public class World {
      * @param listener the old collision listener
      */
     public void removeGlobalCollisionListener(GlobalCollisionListener listener) {
-        _listeners.remove(listener);
+        _collisionListeners.remove(listener);
+    }
+
+    /**
+     * calls all global listeners for a given intersection
+     * @param rect1 one of the rectangles
+     * @param rect2 the other
+     */
+    private void callGlobalIntersectionListeners(Rectangle rect1, Rectangle rect2) {
+        for (GlobalIntersectionListener listener : _intersectionListeners) { // call listeners
+            listener.globalIntersection(rect1, rect2);
+        }
+    }
+
+    /**
+     * adds a new global intersection listener
+     * @param listener the new listener
+     */
+    public void addGlobalIntersectionListener(GlobalIntersectionListener listener) {
+        _intersectionListeners.add(listener);
+    }
+
+    /**
+     * removes a intersection listener
+     * @param listener the old intersection listener
+     */
+    public void removeGlobalIntersectionListener(GlobalIntersectionListener listener) {
+        _intersectionListeners.remove(listener);
     }
 
     public int getIterations() {

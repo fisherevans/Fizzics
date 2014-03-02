@@ -3,8 +3,8 @@ package com.fisherevans.fizzics.components;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.fisherevans.fizzics.World;
 import com.fisherevans.fizzics.listeners.CollisionListener;
+import com.fisherevans.fizzics.listeners.IntersectionListener;
 
 /**
  * @author Fisher Evans
@@ -18,11 +18,16 @@ public class Rectangle {
     private float _friction = 0f;
     private boolean _static = false;
     private boolean _solid = true;
+    private boolean _resolveWithStaticOnly = false;
 
     private Side _wall = null;
     private Side _floor = null;
 
-    private List<CollisionListener> _listeners = null;
+    private Object _object;
+
+    private List<CollisionListener> _collisionListeners = null;
+
+    private List<IntersectionListener> _intersectionListeners = null;
 
     /**
      * creates a new rectangle with the given properties
@@ -283,19 +288,19 @@ public class Rectangle {
      * adds a local collision listener to this rectangle
      * @param newListener the new listener
      */
-    public void addListener(CollisionListener newListener) {
-        if(_listeners == null)
-            _listeners = new ArrayList<CollisionListener>(5);
-        _listeners.add(newListener);
+    public void addCollisionListener(CollisionListener newListener) {
+        if(_collisionListeners == null)
+            _collisionListeners = new ArrayList<CollisionListener>(5);
+        _collisionListeners.add(newListener);
     }
 
     /**
      * removes a local collision listener from this rectangle
      * @param oldListener the old listener
      */
-    public void removeListener(CollisionListener oldListener) {
-        if (_listeners != null)
-            _listeners.remove(oldListener);
+    public void removeCollisionListener(CollisionListener oldListener) {
+        if (_collisionListeners != null)
+            _collisionListeners.remove(oldListener);
     }
 
     /**
@@ -304,10 +309,40 @@ public class Rectangle {
      * @param fromDirection the direction from which it was hit.
      */
     public void callCollisionListeners(Rectangle incoming, Side fromDirection) {
-        if (_listeners == null)
+        if (_collisionListeners == null)
             return;
-        for (CollisionListener listener : _listeners)
+        for (CollisionListener listener : _collisionListeners)
             listener.collision(this, incoming, fromDirection);
+    }
+
+    /**
+     * adds a local intersection listener to this rectangle
+     * @param newListener the new listener
+     */
+    public void addIntersectionListener(IntersectionListener newListener) {
+        if(_intersectionListeners == null)
+            _intersectionListeners = new ArrayList<IntersectionListener>(5);
+        _intersectionListeners.add(newListener);
+    }
+
+    /**
+     * removes a local intersection listener from this rectangle
+     * @param oldListener the old listener
+     */
+    public void removeIntersectionListener(IntersectionListener oldListener) {
+        if (_intersectionListeners != null)
+            _intersectionListeners.remove(oldListener);
+    }
+
+    /**
+     * calls all local intersection listeners tied to this rectangle
+     * @param incoming the rectangle that hit it
+     */
+    public void callIntersectionListeners(Rectangle incoming) {
+        if (_intersectionListeners == null)
+            return;
+        for (IntersectionListener listener : _intersectionListeners)
+            listener.intersection(this, incoming);
     }
 
     /**
@@ -415,5 +450,21 @@ public class Rectangle {
 
     public void setAcceleration(Vector acceleration) {
         _acceleration = acceleration;
+    }
+
+    public boolean isResolveWithStaticOnly() {
+        return _resolveWithStaticOnly;
+    }
+
+    public void setResolveWithStaticOnly(boolean resolveWithStaticOnly) {
+        _resolveWithStaticOnly = resolveWithStaticOnly;
+    }
+
+    public Object getObject() {
+        return _object;
+    }
+
+    public void setObject(Object object) {
+        _object = object;
     }
 }

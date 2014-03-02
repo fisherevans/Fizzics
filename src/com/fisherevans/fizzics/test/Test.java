@@ -62,6 +62,7 @@ public class Test extends JPanel implements GlobalCollisionListener, KeyListener
         for(int count = 0;count < 250;count++) {
             Rectangle r2 = new Rectangle((float)(Math.random()*43 + 3), (float)(Math.random()*43 + 3), 1.5f, 1.5f, false);
             r2.setVelocity(new Vector((float)(Math.random()*10-5), (float)(Math.random()*10-5)));
+            r2.setResolveWithStaticOnly(true);
             //Rectangle r2 = new Rectangle(count+4, count*1.6f+4, 1.5f, 1.5f);
             //r2.setRestitution(0.9f);
             _world.add(r2);
