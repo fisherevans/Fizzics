@@ -29,6 +29,8 @@ public class Rectangle {
 
     private List<IntersectionListener> _intersectionListeners = null;
 
+    private boolean _ignoreGravity = false;
+
     /**
      * creates a new rectangle with the given properties
      * By default:
@@ -222,7 +224,8 @@ public class Rectangle {
      * @param delta the time delta to iterate by
      */
     public void travel(Vector gravity, float delta) {
-        _velocity.add(_acceleration.getCopy().add(gravity).scale(delta));
+        if(!_ignoreGravity)
+            _velocity.add(_acceleration.getCopy().add(gravity).scale(delta));
         move(_velocity.getCopy().scale(delta));
         _floor = null;
         _wall = null;
@@ -466,5 +469,13 @@ public class Rectangle {
 
     public void setObject(Object object) {
         _object = object;
+    }
+
+    public boolean getIgnoreGravity() {
+        return _ignoreGravity;
+    }
+
+    public void setIgnoreGravity(boolean ignoreGravity) {
+        _ignoreGravity = ignoreGravity;
     }
 }

@@ -108,7 +108,6 @@ public class World {
      */
     private void resolveCollision(Rectangle r1Before, Rectangle r1, Rectangle r2, float delta) {
         r1.callIntersectionListeners(r2);
-        r2.callIntersectionListeners(r1);
         if((r1.isResolveWithStaticOnly() && !r2.isStatic())||(r2.isResolveWithStaticOnly() && !r1.isStatic()))
             return;
         Side collisionDirection = r1Before.getSide(r2);
