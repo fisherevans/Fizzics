@@ -25,9 +25,9 @@ public class Rectangle {
 
     private Object _object;
 
-    private List<CollisionListener> _collisionListeners = null;
+    private List<CollisionListener> _collisionListeners = null, _collisionListenersRemove = null;
 
-    private List<IntersectionListener> _intersectionListeners = null;
+    private List<IntersectionListener> _intersectionListeners = null, _intersectionListenersRemove = null;
 
     private float _gravityScale = 1f;
 
@@ -238,8 +238,8 @@ public class Rectangle {
         if (Math.abs(_velocity.getX()) < frictionShift) _velocity.setX(0);
         else _velocity.setX(_velocity.getX() - (Math.signum(_velocity.getX()) * frictionShift));
 
-        if (Math.abs(_velocity.getY()) < frictionShift) _velocity.setY(0);
-        else _velocity.setY(_velocity.getY() - (Math.signum(_velocity.getY()) * frictionShift));
+        //if (Math.abs(_velocity.getY()) < frictionShift) _velocity.setY(0);
+        //else _velocity.setY(_velocity.getY() - (Math.signum(_velocity.getY()) * frictionShift));
     }
 
     /**
@@ -286,6 +286,19 @@ public class Rectangle {
         return _bottomLeft.getY();
     }
 
+    public void checkListenerQueue() {
+        if(_intersectionListenersRemove != null && _intersectionListenersRemove.size() > 0) {
+            for(IntersectionListener listener:_intersectionListenersRemove)
+                _intersectionListeners.remove(listener);
+            _intersectionListenersRemove.clear();
+        }
+        if(_collisionListenersRemove != null && _collisionListenersRemove.size() > 0) {
+            for(CollisionListener listener:_collisionListenersRemove)
+                _collisionListeners.remove(listener);
+            _collisionListenersRemove.clear();
+        }
+    }
+
     /**
      * adds a local collision listener to this rectangle
      * @param newListener the new listener
@@ -301,8 +314,9 @@ public class Rectangle {
      * @param oldListener the old listener
      */
     public void removeCollisionListener(CollisionListener oldListener) {
-        if (_collisionListeners != null)
-            _collisionListeners.remove(oldListener);
+        if(_collisionListenersRemove == null)
+            _collisionListenersRemove = new ArrayList<CollisionListener>(5);
+        _collisionListenersRemove.add(oldListener);
     }
 
     /**
@@ -332,8 +346,9 @@ public class Rectangle {
      * @param oldListener the old listener
      */
     public void removeIntersectionListener(IntersectionListener oldListener) {
-        if (_intersectionListeners != null)
-            _intersectionListeners.remove(oldListener);
+        if(_intersectionListenersRemove == null)
+            _intersectionListenersRemove = new ArrayList<IntersectionListener>(5);
+        _intersectionListenersRemove.add(oldListener);
     }
 
     /**

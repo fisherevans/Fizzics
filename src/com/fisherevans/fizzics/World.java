@@ -77,6 +77,7 @@ public class World {
         for(int iteration = 0;iteration < _iterations;iteration++) {
             int rectId = 0;
             for(Rectangle r1:_rectangles) {
+                r1.checkListenerQueue();
                 if (!r1.isStatic() && r1.isSolid()) { // for each non static rectangle
                     if(iteration == 0) {
                         r1Befores.set(rectId, r1.getCopy()); // keep a copy of the position before movement
@@ -107,10 +108,17 @@ public class World {
      * @param delta the time delta since the last step in seconds
      */
     private void resolveCollision(Rectangle r1Before, Rectangle r1, Rectangle r2, float delta) {
+        Side collisionDirection = r1Before.getSide(r2);
+        if(collisionDirection.isVertical()) { // update the rectangles' floor and wall values
+            r2.setFloor(collisionDirection);
+            r1.setFloor(collisionDirection.getOpposite());
+        } else {
+            r2.setWall(collisionDirection);
+            r1.setWall(collisionDirection.getOpposite());
+        }
         r1.callIntersectionListeners(r2);
         if((r1.isResolveWithStaticOnly() && !r2.isStatic())||(r2.isResolveWithStaticOnly() && !r1.isStatic()))
             return;
-        Side collisionDirection = r1Before.getSide(r2);
         if(r1.intersects(r2)) { // !!!! ---> R1 is moving rectangle, R2 is the one it's hitting <--- !!!!
             if(r2.isSolid()) { // if it needs resolution (not a ghost)
                 r1.applyFriction(r2.getFriction() * delta);
@@ -154,14 +162,6 @@ public class World {
             callGlobalCollisionListeners(r1, r2); // call any added listeners
             r1.callCollisionListeners(r2, collisionDirection.getOpposite());
             r2.callCollisionListeners(r1, collisionDirection);
-        }
-
-        if(collisionDirection.isVertical()) { // update the rectangles' floor and wall values
-            r2.setFloor(collisionDirection);
-            r1.setFloor(collisionDirection.getOpposite());
-        } else {
-            r2.setWall(collisionDirection);
-            r1.setWall(collisionDirection.getOpposite());
         }
     }
 
